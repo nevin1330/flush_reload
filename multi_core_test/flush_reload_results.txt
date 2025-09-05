@@ -1,0 +1,14 @@
+Flush+Reload Attack Test Results
+================================
+
+Baseline Test (No Victim):
+  Samples: 2000
+  Average Reload Time: 1539.18 cycles
+
+Attack Test (With Victim):
+  Samples: 2000
+  Average Reload Time: 1258.00 cycles
+
+Analysis:
+  No significant cache miss pattern detected.
+  Difference: -281.18 cycles (-18.3% change)
