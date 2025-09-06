@@ -3,12 +3,12 @@ Flush+Reload Attack Test Results
 
 Baseline Test (No Victim):
   Samples: 2000
-  Average Reload Time: 1539.18 cycles
+  Average Reload Time: 816.83 cycles
 
-Attack Test (With Victim):
+Attack Test (With Victim Decrypting):
   Samples: 2000
-  Average Reload Time: 1258.00 cycles
+  Average Reload Time: 902.72 cycles
 
 Analysis:
-  No significant cache miss pattern detected.
-  Difference: -281.18 cycles (-18.3% change)
+  Cache misses detected! Attack may be successful.
+  Difference: 85.89 cycles (10.5% increase)

